@@ -13,7 +13,7 @@ interface Chat {
 interface State {
   status: string;
   chat: Chat;
-  output: Array<Chat>;
+  output: Array<String>;
 }
 interface Status {
   message: string;
@@ -23,6 +23,15 @@ interface Status {
 const socket: SocketIOClient.Socket = socketIoClient("http://localhost:4000");
 
 class MongoChat extends Component<{}, State> {
+  state = {
+    status: "",
+    chat: {
+      name: "",
+      message: "",
+    },
+    output: [],
+  };
+
   componentDidMount(): void {
     socket.on("status", (status: string | Status): void => {
       this.setState((): { status: string } => ({
@@ -48,30 +57,25 @@ class MongoChat extends Component<{}, State> {
     });
     socket.on("output", (chatData: []): void => {
       for (let chat of chatData) {
-        this.setState((): { output: Chat[]; status: string } => ({
+        this.setState((): { output: string[]; status: string } => ({
           output: (this.state.output as []).concat(chat),
           status: `Message from ${(chat as { name: string }).name}`,
         }));
       }
     });
   }
-  state = {
-    status: "",
-    chat: {
-      name: "",
-      message: "",
-    },
-    output: [],
-  };
+
   handleClear: () => void = () => {
     socket.emit("clear");
   };
+
   handleSend: (event: KeyboardEvent<HTMLTextAreaElement>) => void = (event) => {
     if (event.key === "Enter" && event.shiftKey === false) {
       socket.emit("input", this.state.chat);
       event.preventDefault();
     }
   };
+
   handleNameChange: (event: ChangeEvent<HTMLInputElement>) => void = (
     event
   ) => {
@@ -83,6 +87,7 @@ class MongoChat extends Component<{}, State> {
       },
     }));
   };
+
   handleMessageChange: (event: ChangeEvent<HTMLTextAreaElement>) => void = (
     event
   ) => {

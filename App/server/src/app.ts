@@ -1,10 +1,10 @@
-import mongoose, { MongooseDocument } from "mongoose";
+import mongoose, { MongooseDocument, Schema } from "mongoose";
 import socketio from "socket.io";
 
 const uri: string =
   "mongodb+srv://Cosmos:Heymorgan22@cluster0-0mf4u.mongodb.net/mongo-chat?retryWrites=true&w=majority";
 
-const chatSchema = new mongoose.Schema({
+const chatSchema: Schema = new mongoose.Schema({
   name: String,
   message: String,
 });
