@@ -57,9 +57,8 @@ class MongoChat extends Component<{}, State> {
     });
     socket.on("output", (chatData: []): void => {
       for (let chat of chatData) {
-        this.setState((): { output: string[]; status: string } => ({
+        this.setState((): { output: string[] } => ({
           output: (this.state.output as []).concat(chat),
-          status: `Message from ${(chat as { name: string }).name}`,
         }));
       }
     });
@@ -100,6 +99,12 @@ class MongoChat extends Component<{}, State> {
     }));
   };
 
+  sortOutputState: (output: []) => [] = (output) => {
+    return output.sort((a: { createdAt: string }, b: { createdAt: string }) => {
+      return a.createdAt > b.createdAt ? -1 : 1;
+    });
+  };
+
   render() {
     return (
       <div className="container">
@@ -112,7 +117,9 @@ class MongoChat extends Component<{}, State> {
             <Aux>
               <Fragment>
                 <NameInput change={this.handleNameChange} />
-                <ChatArea output={this.state.output as []} />
+                <ChatArea
+                  output={this.sortOutputState(this.state.output as [])}
+                />
                 <ChatInput
                   send={this.handleSend}
                   change={this.handleMessageChange}
