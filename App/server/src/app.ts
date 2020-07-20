@@ -4,10 +4,15 @@ import socketio from "socket.io";
 const uri: string =
   "mongodb+srv://Cosmos:Heymorgan22@cluster0-0mf4u.mongodb.net/mongo-chat?retryWrites=true&w=majority";
 
-const chatSchema: Schema = new mongoose.Schema({
-  name: String,
-  message: String,
-});
+const chatSchema: Schema = new mongoose.Schema(
+  {
+    name: String,
+    message: String,
+  },
+  {
+    timestamps: true,
+  }
+);
 
 const Chat = mongoose.model("Chat", chatSchema);
 
@@ -47,11 +52,15 @@ const main: () => Promise<void> = async () => {
             sendStatus("Enter a name and a message");
           else {
             const chat: MongooseDocument = await Chat.create({
-              name: name,
-              message: message,
+              name,
+              message,
             });
             io.emit("output", [chat]);
             sendStatus({ message: "Message sent", clear: true });
+            socket.broadcast.emit(
+              "status",
+              `Message from ${(chat as any).name}`
+            );
           }
         }
       );
