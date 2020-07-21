@@ -13,7 +13,7 @@ interface Chat {
 interface State {
   status: string;
   chat: Chat;
-  output: Array<String>;
+  output: Array<string>;
 }
 interface Status {
   message: string;
