@@ -28,8 +28,8 @@ const main: () => Promise<void> = async () => {
 	const io: socketio.Server = socketio.listen(4000);
 
 	io.on('connection', async (socket: socketio.Socket): Promise<void> => {
-		// socket.emit("status", "connected");
-		// socket.broadcast.emit("status", "A new user has joined");
+		socket.emit('status', 'connected');
+		socket.broadcast.emit('status', 'A new user has joined');
 		const sendStatus = (s: string | { message: string; clear: boolean }): void => {
 			socket.emit('status', s);
 		};
