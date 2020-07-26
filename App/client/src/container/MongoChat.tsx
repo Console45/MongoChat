@@ -10,10 +10,17 @@ interface Chat {
   name: string;
   message: string;
 }
+export interface Output {
+  name: string;
+  _id: string;
+  createdAt: string;
+  message: string;
+
+}
 interface State {
   status: string;
   chat: Chat;
-  output: Array<string>;
+  output: Array<Output>;
 }
 interface Status {
   message: string;
@@ -23,15 +30,20 @@ interface Status {
 const socket: SocketIOClient.Socket = socketIoClient("http://localhost:4000");
 
 class MongoChat extends Component<{}, State> {
+
   state = {
     status: "",
     chat: {
       name: "",
       message: "",
     },
-    output: [],
+    output: [{
+      name: "",
+      message: "",
+      createdAt: '',
+      _id: ''
+    }],
   };
-
   componentDidMount(): void {
     socket.on("status", (status: string | Status): void => {
       this.setState((): { status: string } => ({
@@ -57,8 +69,8 @@ class MongoChat extends Component<{}, State> {
     });
     socket.on("output", (chatData: []): void => {
       for (let chat of chatData) {
-        this.setState((): { output: string[] } => ({
-          output: (this.state.output as []).concat(chat),
+        this.setState((): { output: Array<Output> } => ({
+          output: this.state.output.concat(chat),
         }));
       }
     });
@@ -99,8 +111,8 @@ class MongoChat extends Component<{}, State> {
     }));
   };
 
-  sortOutputState: (output: []) => [] = (output) => {
-    return output.sort((a: { createdAt: string }, b: { createdAt: string }) => {
+  sortOutputState: (output: Output[]) => Output[] = (output) => {
+    return output.sort((a, b) => {
       return a.createdAt > b.createdAt ? -1 : 1;
     });
   };
@@ -118,7 +130,7 @@ class MongoChat extends Component<{}, State> {
               <Fragment>
                 <NameInput change={this.handleNameChange} />
                 <ChatArea
-                  output={this.sortOutputState(this.state.output as [])}
+                  output={this.sortOutputState(this.state.output)}
                 />
                 <ChatInput
                   send={this.handleSend}

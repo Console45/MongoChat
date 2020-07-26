@@ -1,10 +1,14 @@
-import mongoose, { MongooseDocument, Schema } from "mongoose";
+import { connect, Schema, Document, model } from "mongoose";
 import socketio from "socket.io";
 
 const uri: string =
   "mongodb+srv://Cosmos:Heymorgan22@cluster0-0mf4u.mongodb.net/mongo-chat?retryWrites=true&w=majority";
 
-const chatSchema: Schema = new mongoose.Schema(
+interface IChat extends Document {
+  name: String;
+  message: String;
+}
+const chatSchema: Schema = new Schema(
   {
     name: String,
     message: String,
@@ -14,10 +18,9 @@ const chatSchema: Schema = new mongoose.Schema(
   }
 );
 
-const Chat = mongoose.model("Chat", chatSchema);
-
+const Chat = model<IChat>("Chat", chatSchema);
 const main: () => Promise<void> = async () => {
-  await mongoose.connect(uri, {
+  await connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
@@ -34,7 +37,7 @@ const main: () => Promise<void> = async () => {
       ): void => {
         socket.emit("status", s);
       };
-      const chats: MongooseDocument[] = await Chat.find(
+      const chats = await Chat.find(
         {},
         {},
         { limit: 100, sort: { _id: 1 } }
@@ -51,7 +54,7 @@ const main: () => Promise<void> = async () => {
           if (name == "" || message == "")
             sendStatus("Enter a name and a message");
           else {
-            const chat: MongooseDocument = await Chat.create({
+            const chat = await Chat.create({
               name,
               message,
             });
@@ -59,7 +62,7 @@ const main: () => Promise<void> = async () => {
             sendStatus({ message: "Message sent", clear: true });
             socket.broadcast.emit(
               "status",
-              `Message from ${(chat as any).name}`
+              `Message from ${chat.name}`
             );
           }
         }
