@@ -75,7 +75,6 @@ class MongoChat extends Component<{}, State> {
 					output: this.state.output.concat(chat)
 				}));
 			}
-			console.log(this.state.output);
 		});
 	}
 
